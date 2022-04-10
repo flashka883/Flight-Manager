@@ -210,6 +210,38 @@
             margin-top: 20px;
         }
 
+        .page-content .links-holder {
+            width: 100%;
+            float: right;
+        }
+
+        .page-content .links-holder ul {
+            display: flex;
+        }
+
+        .page-content .links-holder ul li {
+            display: flex;
+            justify-content: center;
+            align-content: center;
+            width: 40px;
+            height: 40px;
+            list-style: none;
+            padding: 10px;
+            margin-right: 10px;
+            background-color: lightgray;
+            border-radius: 4px;
+            border: 2px solid lightgray;
+        }
+
+        .page-content .links-holder ul li.active {
+            background-color: #fff;
+        }
+
+        .page-content .links-holder nav:last-child() {
+            display: flex !important;
+            flex-direction: row !important;
+        }
+
     </style>
 
     {{-- Side Bar --}}
@@ -306,7 +338,11 @@
                     </div>
                 </div>
             @endforeach
+            <div class="links-holder">
+                {!! $tickets->links() !!}
+            </div>
         </div>
+
     </section>
 
     {{-- JQuery --}}
