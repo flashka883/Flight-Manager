@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Hash;
 use Intervention\Image\Facades\Image;
+use Illuminate\Support\Facades\Validator;
 
 class ProfileController extends Controller
 {
@@ -21,32 +22,58 @@ class ProfileController extends Controller
     {
         $user = auth()->user();
 
-        $user->name = $request->get('name');
-        $user->description = $request->get('description');
-        if ($request->get('email')) {
+        if (!$user) {
+            return back()->withErrors(['msg' => 'You should be logged in to procceed.']);
+        }
+
+        if ($user->name != $request->get('name')) {
+            $user->name = $request->get('name');
+        }
+        if ($user->first_name != $request->get('first_name')) {
+            $user->first_name = $request->get('first_name');
+        }
+        if ($user->last_name != $request->get('last_name')) {
+            $user->last_name = $request->get('last_name');
+        }
+        if ($user->last_name != $request->get('last_name')) {
+            $user->last_name = $request->get('last_name');
+        }
+        if ($user->address != $request->get('address')) {
+            $user->address = $request->get('address');
+        }
+        if ($user->phone != $request->get('phone')) {
+            $user->phone = $request->get('phone');
+        }
+        if ($user->egn != $request->get('egn')) {
+            $isDuplicate = User::where('egn', $request->get('egn'))->first();
+            if ($isDuplicate) {
+                return back()->withErrors(['msg' => 'The egn is taken']);
+            }
+
+            $user->egn = $request->get('egn');
+        }
+        if ($user->email != $request->get('email')) {
+            $isDuplicate = User::where('email', $request->get('email'))->first();
+            if ($isDuplicate) {
+                return back()->withErrors(['msg' => 'The email is taken']);
+            }
             $user->email = $request->get('email');
         }
         if ($request->get('password')) {
             $user->password = Hash::make($request->get('password'));
         }
-        if ($request->get('avatar')) {
-            $imageName = $this->updateImage($request->get('avatar'), $user->avatar);
-            $user->avatar = $imageName;
-        }
+        // if ($request->get('avatar')) {
+        //     $imageName = $this->updateImage($request->get('avatar'), $user->avatar);
+        //     $user->avatar = $imageName;
+        // }
 
         try {
             $user->save();
         } catch (\Exception $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' =>  $e->getMessage()
-            ], 400);
+            return back()->withErrors(['msg' => 'Could not save profile.']);
         }
 
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Profile successfully updated'
-        ]);
+        return back()->with(['msg' => 'Profile successfully updated.']);
     }
 
     public function updateImage($image, $previousImage)

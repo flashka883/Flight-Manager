@@ -17,5 +17,6 @@ class ReservedTicketsNoneUsers extends Model
         'phone',
         'nationality',
         'ticket_id',
+        'is_paid',
     ];
 }

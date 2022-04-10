@@ -218,6 +218,25 @@
             font-size: 20px;
         }
 
+        .page-content .holder .btn {
+            color: #47b2e6;
+            background-color: #fff;
+            padding: 15px 20px;
+            border-radius: 30px;
+            border: none;
+            box-shadow: rgba(17, 12, 46, 0.15) 0px 48px 100px 0px;
+        }
+
+        .page-content .holder .btn i {
+            margin-right: 6px;
+        }
+
+        .page-content .holder .btn:hover {
+            cursor: pointer;
+            transition: all .2s ease-in-out;
+            transform: scale(1.08);
+        }
+
     </style>
 
     @include('partials.sidebar')
@@ -291,6 +310,17 @@
                 </div>
             </div>
         @endguest
+
+        @auth
+            <div class="holder">
+                <form action="{{ route('ticket.reserve', $ticket->id) }}" method="GET">
+                    <button type="submit" class="btn">
+                        <i class="fa-solid fa-arrow-right"></i>
+                        Checkout
+                    </button>
+                </form>
+            </div>
+        @endauth
 
     </section>
 

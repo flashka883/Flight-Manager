@@ -139,12 +139,12 @@
                         Booked Tickets
                     </a>
                 </li>
-                <li>
+                {{-- <li>
                     <a href="" class="link">
                         <i class="fa-solid fa-heart"></i>
                         Saved Offers
                     </a>
-                </li>
+                </li> --}}
             @endauth
         </ul>
     </nav>

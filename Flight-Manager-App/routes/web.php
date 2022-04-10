@@ -37,15 +37,16 @@ Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 
 // Profile
 Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
+Route::post('/profile', [ProfileController::class, 'updateProfile'])->name('profile.post');
 
 // Tickets
-Route::get('/tickets/booked', [ProfileController::class, 'index'])->name('booked.tickets');
+Route::get('/tickets/booked', [FlightController::class, 'getReservedTickets'])->name('booked.tickets');
 
 
 // Ticket
 Route::get('/ticket/{ticket}', [FlightController::class, 'getTicket'])->name('ticket');
+Route::get('/ticket/{ticket}/reserve', [FlightController::class, 'reserveTicket'])->name('ticket.reserve');
 Route::get('/ticket/{ticket}/reserve/guest', [FlightController::class, 'reserveTicketNoneUser'])->name('ticket.reserve.guest');
-
 
 Route::get('/ticket/{ticket}/checkout/{reservedTicket}/{guest?}', [CheckoutController::class, 'checkout'])->name('ticket.checkout');
 Route::post('/ticket/{ticket}/checkout/{reservedTicket}/{guest?}', [CheckoutController::class, 'postCheckout'])->name('ticket.checkout.post');

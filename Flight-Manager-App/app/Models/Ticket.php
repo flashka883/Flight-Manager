@@ -16,6 +16,6 @@ class Ticket extends Model
      */
     protected $dates = [
         'departs_at',
-        'lands_at'
+        'lands_at',
     ];
 }

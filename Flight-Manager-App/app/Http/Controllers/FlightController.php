@@ -37,9 +37,51 @@ class FlightController extends Controller
         return view('book-summary', compact('ticket'));
     }
 
-    public function reserveTicket(Request $request)
+    public function reserveTicket(Request $request, Ticket $ticket)
     {
-        # code...
+        $user = auth()->user();
+
+        if (!$user) {
+            return back()->withErrors(['msg' => 'You should be logged in to procceed.']);
+        }
+
+        $ticket = $ticket
+            ->join('air_plane_classes', 'tickets.air_plane_class_id', '=', 'air_plane_classes.id')
+            ->join('air_ports as apf', 'tickets.air_port_from', '=', 'apf.id')
+            ->join('air_ports as apt', 'tickets.air_port_to', '=', 'apt.id')
+            ->join('cities as cf', 'apf.city_id', '=', 'cf.id')
+            ->join('cities as ct', 'apt.city_id', '=', 'ct.id')
+            ->select(
+                'tickets.id as id',
+                'tickets.departs_at as departs_at',
+                'tickets.lands_at as lands_at',
+                'air_plane_classes.name as className',
+                'air_plane_classes.seats as classSeats',
+                'apf.name as airPortFromName',
+                'apt.name as airPortToName',
+                'cf.name as cityFrom',
+                'ct.name as cityTo',
+                'tickets.price'
+            )->first();
+
+        $takenSeats = ReservedTicket::where('ticket_id', $ticket->id)->count();
+        $takenSeats += ReservedTicketsNoneUsers::where('ticket_id', $ticket->id)->count();
+
+        if ($ticket->classSeats - $takenSeats <= 0) {
+            return back()->withErrors(['msg' => 'All seats are taken.']);
+        }
+
+        $reservedTicket = ReservedTicket::create([
+            'user_id' => $user->id,
+            'ticket_id' => $ticket->id
+        ]);
+
+        return redirect(
+            route(
+                'ticket.checkout',
+                ['ticket' => $ticket->id, 'reservedTicket' => $reservedTicket->id, 'guest' => false]
+            )
+        )->with(['reservedTicket' => $reservedTicket->id]);
     }
 
     public function reserveTicketNoneUser(Request $request, Ticket $ticket)
@@ -96,5 +138,37 @@ class FlightController extends Controller
                 ['ticket' => $ticket->id, 'reservedTicket' => $reservedTicket->id, 'guest' => true]
             )
         )->with(['reservedTicket' => $reservedTicket->id]);
+    }
+
+    public function getReservedTickets()
+    {
+        $user = auth()->user();
+
+        if (!$user) {
+            return back()->withErrors(['msg' => 'You should be logged in to procceed.']);
+        }
+
+        $tickets = ReservedTicket::where('user_id', $user->id)
+            ->join('tickets', 'reserved_tickets.ticket_id', '=', 'tickets.id')
+            ->join('air_plane_classes', 'tickets.air_plane_class_id', '=', 'air_plane_classes.id')
+            ->join('air_ports as apf', 'tickets.air_port_from', '=', 'apf.id')
+            ->join('air_ports as apt', 'tickets.air_port_to', '=', 'apt.id')
+            ->join('cities as cf', 'apf.city_id', '=', 'cf.id')
+            ->join('cities as ct', 'apt.city_id', '=', 'ct.id')
+            ->select(
+                'reserved_tickets.id as reserved_ticket_id',
+                'tickets.id as id',
+                'tickets.departs_at as departs_at',
+                'tickets.lands_at as lands_at',
+                'air_plane_classes.name as className',
+                'apf.name as airPortFromName',
+                'apt.name as airPortToName',
+                'cf.name as cityFrom',
+                'ct.name as cityTo',
+                'tickets.price',
+                'reserved_tickets.is_paid'
+            )->paginate(10);
+
+        return view('booked-tickets', compact('tickets'));
     }
 }

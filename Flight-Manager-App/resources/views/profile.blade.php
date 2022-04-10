@@ -10,10 +10,14 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css"
         integrity="sha512-KfkfwYDsLkIlwQp6LFnl8zNdLGxu9YAA1QvwINks4PhcElQSvqcyVLLD9aMhXd13uQjoXtEKNosOWaZqXgel0g=="
         crossorigin="anonymous" referrerpolicy="no-referrer" />
+    {{-- Toastr --}}
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
 </head>
 
 <body>
     <style>
+        @import "toastr";
+
         * {
             box-sizing: border-box;
         }
@@ -59,8 +63,7 @@
         .page-content .profile-holder .left {
             width: 30%;
             display: flex;
-            /* justify-content: center; */
-            /* align-items: center; */
+            padding-right: 6%;
             flex-direction: column;
         }
 
@@ -72,7 +75,7 @@
         }
 
         .page-content .profile-holder .left .image-holder img {
-            width: 70%;
+            width: 100%;
             border-radius: 100%;
         }
 
@@ -83,7 +86,21 @@
             position: absolute;
         }
 
-        .page-content .profile-holder .left .avatar-btn {}
+        .page-content .profile-holder .left #avatar-btn {
+            width: 100%;
+            margin-top: 10px;
+            padding: 16px 32px;
+            border-radius: 30px;
+            border: none;
+            background-color: #e9ecef;
+            color: #010502;
+        }
+
+        .page-content .profile-holder .left #avatar-btn:hover {
+            cursor: pointer;
+            transition: all .2s ease-in-out;
+            transform: scale(1.08);
+        }
 
         .page-content .profile-holder .right {
             width: 70%;
@@ -160,7 +177,8 @@
             <div class="title-holder">
                 <h2 class="title"> Account Update </h2>
             </div>
-            <div class="profile-holder">
+            <form action="{{ route('profile.post') }}" method="POST" class="profile-holder">
+                @csrf
                 <div class="left">
                     <div class="image-holder">
                         <img id="avatar"
@@ -169,54 +187,55 @@
                     </div>
                     <div class="button-holder">
                         <button type="button" id="avatar-btn"> Browse </button>
-                        <input type="file" id="in-avatar" accept="image/*">
+                        <input type="file" name="avatar" id="in-avatar" accept="image/*">
                     </div>
                 </div>
                 <div class="right">
                     <div class="row">
                         <div class="group">
                             <label for="in-username">Username</label>
-                            <input type="text" id="in-username" placeholder="Enter your username"
+                            <input type="text" name="name" id="in-username" placeholder="Enter your username"
                                 value="{{ $user->name }}">
                         </div>
                         <div class="group">
                             <label for="in-email">Email</label>
-                            <input type="email" id="in-email" placeholder="Enter your email"
+                            <input type="email" name="email" id="in-email" placeholder="Enter your email"
                                 value="{{ $user->email }}">
                         </div>
                     </div>
                     <div class="row">
                         <div class="group">
                             <label for="in-first-name">First Name</label>
-                            <input type="text" id="in-first-name" placeholder="Enter your first name"
+                            <input type="text" name="first_name" id="in-first-name" placeholder="Enter your first name"
                                 value="{{ $user->first_name }}">
                         </div>
                         <div class="group">
                             <label for="in-last-name">Last Name</label>
-                            <input type="text" id="in-last-name" placeholder="Enter your last name"
+                            <input type="text" name="last_name" id="in-last-name" placeholder="Enter your last name"
                                 value="{{ $user->last_name }}">
                         </div>
                     </div>
                     <div class="row">
                         <div class="group">
                             <label for="in-egn">Egn</label>
-                            <input type="text" id="in-egn" placeholder="Enter your egn" value="{{ $user->egn }}">
+                            <input type="text" name="egn" id="in-egn" placeholder="Enter your egn"
+                                value="{{ $user->egn }}">
                         </div>
                         <div class="group">
                             <label for="in-phone">Phone</label>
-                            <input type="text" id="in-phone" placeholder="Enter your phone"
+                            <input type="text" name="phone" id="in-phone" placeholder="Enter your phone"
                                 value="{{ $user->phone }}">
                         </div>
                     </div>
                     <div class="row">
                         <div class="group">
                             <label for="in-address">Address</label>
-                            <input type="text" id="in-address" placeholder="Enter your address"
+                            <input type="text" name="address" id="in-address" placeholder="Enter your address"
                                 value="{{ $user->address }}">
                         </div>
                         <div class="group">
                             <label for="in-password">Password</label>
-                            <input type="password" id="in-password" placeholder="Enter new password">
+                            <input type="password" name="password" id="in-password" placeholder="Enter new password">
                         </div>
                     </div>
                     <div class="control">
@@ -230,7 +249,7 @@
                         </button>
                     </div>
                 </div>
-            </div>
+            </form>
         </div>
     </section>
 
@@ -238,6 +257,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"
         integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ=="
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     {{-- My Scripts --}}
     <script>
         function readURL(input) {
@@ -247,6 +267,7 @@
                 reader.onload = function(e) {
                     $('#avatar').attr('src', e.target.result);
                     $('#avatar').height($('#avatar').width());
+                    $('#in-avatar').val(e.target.result);
                 }
 
                 reader.readAsDataURL(input.files[0]);
@@ -266,6 +287,13 @@
 
         $(document).ready(function() {
             updateAvatar();
+
+            if ("{{ $errors->any() }}") {
+                toastr.error('{{ $errors->first() }}', 'Error!');
+            }
+            // if ({{ Session::has('message') }}) {
+            //     toastr.error('{{ Session::get('msg') }}', 'Error!');
+            // }
         });
     </script>
 </body>

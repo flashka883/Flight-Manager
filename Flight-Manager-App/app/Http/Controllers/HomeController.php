@@ -44,6 +44,7 @@ class HomeController extends Controller
             ->when(!is_null($cityTo), function ($query) use ($cityTo) {
                 return $query->where('ct.name', $cityTo);
             })
+            ->whereDate('departs_at', '>', Carbon::now())
             ->paginate(10);
 
         return view('index', compact('cities', 'tickets', 'cityFrom', 'cityTo'));
